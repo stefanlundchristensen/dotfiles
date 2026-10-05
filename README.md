@@ -16,10 +16,6 @@ Node/Volta/Pi changes, Herdr/Firstmate lifecycle, secrets, services or cleanup.
 python3 -m unittest discover -s tests -v
 ```
 
-See [pilot review, ownership, build evidence and rollback](docs/pilot.md). Exact
-26.05-family input revisions in `flake.nix` now have a Nix-generated `flake.lock`.
-With existing Nix 2.35.2 on Apple Silicon/macOS 26.6.2, both the standalone Home
-Manager and staged nix-darwin outputs evaluated and built without activation.
-Consumer/lock-structure tests also passed; CI does not install or run Nix.
-Cold rebuilds, disposable-account activation and rollback remain unverified and
-require separate approval. Do not merge until explicit approval.
+See [pilot review, ownership, build evidence and rollback](docs/pilot.md) for
+the locked-input validation results, remaining acceptance gates and approval
+boundaries. Do not merge until explicit approval.
