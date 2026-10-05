@@ -16,9 +16,6 @@ Node/Volta/Pi changes, Herdr/Firstmate lifecycle, secrets, services or cleanup.
 python3 -m unittest discover -s tests -v
 ```
 
-See [pilot review, ownership, build gates and rollback](docs/pilot.md). Exact
-26.05-family input revisions are pinned in `flake.nix`, but **no lockfile or Nix
-evaluation/build is claimed**: Nix is unavailable here. Consumer tests and CI
-validate authored Git/Zsh behavior only. Installation, lock generation, disposable
-host testing and any activation require separate approval. Do not merge until
-explicit approval.
+See [pilot review, ownership, build evidence and rollback](docs/pilot.md) for
+the locked-input validation results, remaining acceptance gates and approval
+boundaries. Do not merge until explicit approval.
