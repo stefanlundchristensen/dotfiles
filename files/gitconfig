@@ -1,0 +1,9 @@
+# Opt in per process with GIT_CONFIG_GLOBAL; no identity/helper/includes/secrets.
+[init]
+    defaultBranch = main
+[pull]
+    ff = only
+[fetch]
+    prune = true
+[merge]
+    conflictStyle = zdiff3
