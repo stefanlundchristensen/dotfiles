@@ -1,0 +1,8 @@
+# Local build/test outputs only; no private configuration is consumed by the flake.
+/result
+/result-*
+/.test-tmp/
+__pycache__/
+*.pyc
+/local/
+.DS_Store

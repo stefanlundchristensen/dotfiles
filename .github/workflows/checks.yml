@@ -1,0 +1,19 @@
+name: Pilot checks
+on:
+  push:
+    branches: [main, fm/dotfiles-nix-pilot]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  config-checks:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Check authored configuration with real consumers (no Nix install)
+        run: python3 -m unittest discover -s tests -v
+      - name: Check whitespace
+        run: git diff --check HEAD^ HEAD
