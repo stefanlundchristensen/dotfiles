@@ -48,13 +48,9 @@ approval; never run integrated and standalone HM against the same files.
 
 ## Pins and honest validation boundary
 
-GitHub's official release refs were queried read-only on 2026-10-05:
-
-| Input / release family | Exact revision in `flake.nix` |
-| --- | --- |
-| Nixpkgs `nixpkgs-26.05-darwin` | `6ca6757e08e5dec9110859c969a6a2718ceb44a0` |
-| Home Manager `release-26.05` | `db7d5e2332710f5abb088f6b5de927d7f9511b35` |
-| nix-darwin `nix-darwin-26.05` | `c3e90c89649b07d1a96e4b9dd6cd0d6e44b91a74` |
+GitHub's official 26.05-family release refs were queried read-only on 2026-10-05.
+[`flake.nix`](../flake.nix) owns the exact input revisions and follows edges;
+review them there rather than maintaining a second pin inventory here.
 
 Both module inputs follow the one Nixpkgs input. Revisions are exact, not moving
 branches. **There is no `flake.lock`**: Nix was not available to compute/verify NAR
@@ -62,8 +58,9 @@ hashes or resolve the complete input graph. This is revision-pinned preparation,
 not a fully verified lock or proven reproducible build. Do not copy another
 repository's lock, fabricate hashes, or claim evaluated package versions.
 
-`home.stateVersion = "26.05"` and `system.stateVersion = 6` are initial compatibility
-values, not automatic update counters. For future updates, change exact input
+The state versions in [`home/pilot.nix`](../home/pilot.nix) and
+[`darwin/staged.nix`](../darwin/staged.nix) are initial compatibility values,
+not automatic update counters. For future updates, change exact input
 revisions deliberately, generate/review the lock on an approved Nix-enabled test
 machine, inspect release notes, build and test before activation. Do not update
 inputs during activation. Brew cask payloads/vendor app updates are not Nix-pinned.
