@@ -3,28 +3,27 @@
 import base64
 import json
 from pathlib import Path
-import re
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 class PilotLockTests(unittest.TestCase):
-    def test_lock_matches_declared_pins_and_follows(self):
-        pins = dict(re.findall(
-            r'([\w-]+)\.url = "github:([^\"]+)";',
-            (ROOT / "flake.nix").read_text(),
-        ))
-        self.assertEqual(set(pins), {"nixpkgs", "home-manager", "nix-darwin"})
+    def test_lock_graph_revisions_and_hash_format(self):
+        repositories = {
+            "nixpkgs": ("NixOS", "nixpkgs"),
+            "home-manager": ("nix-community", "home-manager"),
+            "nix-darwin": ("nix-darwin", "nix-darwin"),
+        }
         lock = json.loads((ROOT / "flake.lock").read_text())
         self.assertEqual(lock["version"], 7)
         self.assertEqual(lock["root"], "root")
         nodes = lock["nodes"]
-        self.assertEqual(set(nodes), {"root", *pins})
-        self.assertEqual(nodes["root"]["inputs"], {name: name for name in pins})
-        for name, url in pins.items():
+        self.assertEqual(set(nodes), {"root", *repositories})
+        self.assertEqual(nodes["root"]["inputs"], {name: name for name in repositories})
+        for name, (owner, repo) in repositories.items():
             with self.subTest(input=name):
-                owner, repo, rev = url.split("/")
+                rev = nodes[name]["original"]["rev"]
                 self.assertRegex(rev, r"^[0-9a-f]{40}$")
                 original = {"type": "github", "owner": owner, "repo": repo, "rev": rev}
                 self.assertEqual(nodes[name]["original"], original)

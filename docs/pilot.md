@@ -85,9 +85,11 @@ local identity override, Zsh syntax and interactive settings, unchanged child PA
 and absence of writes to the fake home. No private home configuration is read.
 Zsh necessarily reads the system `zshenv`; `-d` skips later global rc files, and
 explicit `ZDOTDIR` avoids the user's rc files. Test environments are not exports
-into the working session. A lock regression test checks the graph, exact revision
-agreement with `flake.nix`, follows edges and SHA-256 format; it does not verify
-fetched NAR contents. CI runs these checks on a macOS runner, with no Nix installer.
+into the working session. A lock regression test checks the JSON lock graph,
+repository identities, exact revision format, original/locked revision agreement,
+follows edges and SHA-256 format; it does not verify agreement with `flake.nix`
+or fetched NAR contents. Declaration agreement is covered by the recorded Nix
+metadata validation below. CI runs these checks on a macOS runner, with no Nix installer.
 These source checks do **not** evaluate Nix or prove HM/nix-darwin options, package
 availability, generated closures, collision handling or rollback.
 
