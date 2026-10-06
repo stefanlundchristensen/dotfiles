@@ -196,8 +196,9 @@ store paths here are evidence, not durable backups or approval to activate.
 ### Neovim follow-up build (2026-10-06)
 
 The follow-up used the same already-installed Nix 2.35.2 binary. The flake check
-contains semantic Nix assertions that Neovim is in the Home Manager package set
-and the generated XDG Nix client config contains both required features. Commands:
+asserts that Neovim is in the Home Manager package set and runs the Python tests.
+The generated XDG Nix client config was inspected as recorded below; the check
+does not semantically assert its effective experimental-feature set. Commands:
 
 ```sh
 NIX=/nix/var/nix/profiles/default/bin/nix
