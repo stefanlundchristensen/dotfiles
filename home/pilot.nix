@@ -5,7 +5,10 @@
   home.homeDirectory = "/Users/pilot";
   home.stateVersion = "26.05";
 
-  home.packages = [ pkgs.zsh pkgs.git pkgs.jq pkgs.ripgrep ];
+  home.packages = [ pkgs.zsh pkgs.git pkgs.jq pkgs.ripgrep pkgs.neovim ];
+
+  # User-level Nix client config; does not select or manage the Nix installation.
+  xdg.configFile."nix/nix.conf".text = "experimental-features = nix-command flakes\n";
 
   # No standard shell/Git file takeover or session-variable/PATH declarations.
   xdg.enable = true;

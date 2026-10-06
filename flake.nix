@@ -27,7 +27,11 @@
         modules = [ ./darwin/staged.nix ];
       };
 
-      checks.${system}.pilot-config = pkgs.runCommand "pilot-config-checks" {
+      checks.${system}.pilot-config =
+        assert builtins.elem pkgs.neovim self.homeConfigurations.pilot.config.home.packages;
+        assert self.homeConfigurations.pilot.config.xdg.configFile."nix/nix.conf".text
+          == "experimental-features = nix-command flakes\n";
+        pkgs.runCommand "pilot-config-checks" {
         nativeBuildInputs = [ pkgs.python3 pkgs.git pkgs.zsh ];
       } ''
         cp -R ${self} ./source
