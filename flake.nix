@@ -1,5 +1,5 @@
 {
-  description = "Configuration-only Apple Silicon shell/Git pilot";
+  description = "Configuration-only Apple Silicon shell/editor/terminal pilot";
 
   inputs = {
     # Exact commits from the matching 26.05 release branches; see docs/pilot.md.
@@ -29,6 +29,8 @@
 
       checks.${system}.pilot-config =
         assert builtins.elem pkgs.neovim self.homeConfigurations.pilot.config.home.packages;
+        assert builtins.elem pkgs.nerd-fonts.hack self.homeConfigurations.pilot.config.home.packages;
+        assert self.homeConfigurations.pilot.config.fonts.fontconfig.enable;
         pkgs.runCommand "pilot-config-checks" {
           nativeBuildInputs = [ pkgs.python3 pkgs.git pkgs.zsh ];
         } ''

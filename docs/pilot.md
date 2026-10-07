@@ -21,14 +21,15 @@ explicitly rather than introducing one silently here.
 
 | Surface | Pilot owner / scope |
 | --- | --- |
-| Git, Zsh, jq, ripgrep, Neovim | Five Nix packages in the standalone HM user profile, only after approved activation; Neovim remains unconfigured |
+| Git, Zsh, jq, ripgrep, Neovim, Hack Nerd Font | Six Nix packages in the standalone HM user profile, only after approved activation; fontconfig is enabled for the font |
+| `~/.config/nvim`, `~/.config/herdr/config.toml`, `~/.config/wezterm/wezterm.lua` | Three app config mappings; target-home activation is not authorized and host collisions require the separate recovery handoff in [editor/terminal setup](editor-terminal-setup.md) |
 | `~/.config/dotfiles-pilot/zsh/.zshrc` | One authored immutable file; used only with explicit `ZDOTDIR` |
 | `~/.config/dotfiles-pilot/git/config` | One authored immutable file; selected only with per-process `GIT_CONFIG_GLOBAL` |
 | `~/.config/nix/nix.conf` | One authored user-level Nix client config with `nix-command` and `flakes`; effective only after approved activation |
 | HM profile/generation, session-vars, cache/state markers and font marker | Upstream HM machinery, not just the three authored files; inspect the entire built closure before approval |
 | `~/.zshrc`, `.zprofile`, `.zshenv`, `.gitconfig`, `.config/git/config` | Unmanaged and untouched; no source/include of their contents |
 | Homebrew and GUI/mac-specific apps | Existing owner retained; no cask/formula shortlist or adoption in this pilot |
-| Volta/Node 22.22.2, Pi, Herdr/Firstmate, credentials and services | Entirely out of scope; no packages, links, imports or lifecycle commands |
+| Volta/Node 22.22.2, Pi runtime, Herdr lifecycle/server/session state, Firstmate, credentials and services | Entirely out of scope; no runtime packages, state links, imports or lifecycle commands |
 
 HM activation installs a user profile; that is **not** a read-only operation.
 Depending on already-configured profile sourcing, later shells may see its
@@ -39,9 +40,13 @@ credential helper or include. Explicitly selecting it replaces the process's
 global Git configuration: use local test repositories, not authenticated network
 operations or real work requiring private global identity/helper settings.
 
-Neovim is added only as `pkgs.neovim` in the Home Manager user profile. No Neovim
-configuration, plugin framework, aliases, editor choice, or default-editor override
-is declared. The pilot declares `nix-command` and `flakes` in the user's
+Neovim is provided as `pkgs.neovim` in the Home Manager user profile and its
+configuration, locked lazy.nvim plugin set, Herdr keybindings, and WezTerm settings
+are mapped from this repository's authored files. Hack Nerd Font is included for
+the terminal font setting. No Herdr or WezTerm application package is claimed by
+this pilot: the host already resolves both commands, and Herdr is not available as
+a package in the locked Nixpkgs. No shell alias, default-editor override, or host
+activation is authorized. The pilot declares `nix-command` and `flakes` in the user's
 `~/.config/nix/nix.conf` through the existing Home Manager XDG file surface. This
 avoids selecting a Nix package or changing daemon ownership or nix-darwin settings.
 The file takes effect only after Home Manager activation; it cannot bootstrap the
