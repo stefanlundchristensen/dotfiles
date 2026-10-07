@@ -4,11 +4,13 @@ All mutable test state stays under this checkout, with fake HOME and no access
 to the user's Git configuration or shell rc files. No activation is performed.
 """
 
+import json
 import os
 from pathlib import Path
 import shutil
 import subprocess
 import tempfile
+import tomllib
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -63,6 +65,28 @@ class PilotConfigTests(unittest.TestCase):
         self.run_tool("git", "-C", "repo", "config", "user.email", "test@example.invalid")
         self.run_tool("git", "-C", "repo", "commit", "--quiet", "--allow-empty", "-m", "test")
         self.assertEqual(self.run_tool("git", "-C", "repo", "log", "-1", "--format=%ae").stdout.strip(), "test@example.invalid")
+
+    def test_editor_terminal_sources_and_herdr_toml(self):
+        app_config = ROOT / "home/.config"
+        for path in (
+            app_config / "nvim/init.lua",
+            app_config / "nvim/lua/plugins/colorscheme.lua",
+            app_config / "nvim/lua/plugins/git.lua",
+            app_config / "nvim/lua/plugins/navigation.lua",
+            app_config / "nvim/lua/plugins/ui.lua",
+            app_config / "wezterm/wezterm.lua",
+        ):
+            self.assertTrue(path.is_file(), f"missing app config: {path.relative_to(ROOT)}")
+
+        herdr = tomllib.loads((app_config / "herdr/config.toml").read_text())
+        self.assertEqual(herdr["keys"]["prefix"], "ctrl+b")
+        self.assertEqual(herdr["keys"]["focus_pane_left"], "prefix+h")
+        self.assertEqual(herdr["keys"]["copy_mode"], "prefix+y")
+        self.assertEqual(herdr["ui"]["agent_panel_sort"], "spaces")
+
+        lock = json.loads((app_config / "nvim/lazy-lock.json").read_text())
+        self.assertEqual(len(lock), 9)
+        self.assertTrue(all(len(plugin["commit"]) == 40 for plugin in lock.values()))
 
     def test_zsh_syntax(self):
         self.run_tool("zsh", "-d", "-n", str(ZDOTDIR / ".zshrc"))
