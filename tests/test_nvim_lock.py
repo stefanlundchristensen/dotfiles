@@ -14,6 +14,37 @@ NVIM = os.environ.get("NVIM", shutil.which("nvim"))
 LAZY = os.environ.get("LAZY_NVIM_SOURCE")
 
 
+@unittest.skipUnless(NVIM, "requires Neovim")
+class NvimPluginSpecTests(unittest.TestCase):
+    def test_plugin_specs_execute_as_lazy_tables(self):
+        # Execute the declarative interface with its real Lua consumer. This
+        # catches malformed specs before Lazy attempts network installation.
+        script = """
+local ok, err = pcall(function()
+  for _, file in ipairs(vim.fn.glob(vim.env.SPEC_DIR .. '/*.lua', false, true)) do
+    local specs = assert(loadfile(file))()
+    assert(type(specs) == 'table', file)
+    for _, spec in ipairs(specs) do
+      assert(type(spec) == 'table' and type(spec[1]) == 'string', file)
+    end
+  end
+end)
+if not ok then
+  io.stderr:write(tostring(err) .. '\\n')
+  vim.cmd('cquit 1')
+else
+  vim.cmd('qa!')
+end
+"""
+        result = subprocess.run(
+            [NVIM, '--headless', '--clean', '-i', 'NONE', '-c', 'lua ' + script],
+            cwd=ROOT,
+            env={**os.environ, 'SPEC_DIR': str(ROOT / 'home/.config/nvim/lua/plugins')},
+            capture_output=True, text=True, timeout=30,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+
 @unittest.skipUnless(NVIM and LAZY, "requires Neovim and LAZY_NVIM_SOURCE checkout")
 class NvimLockTests(unittest.TestCase):
     def test_readonly_config_first_and_repeated_startup(self):

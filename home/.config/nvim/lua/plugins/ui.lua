@@ -4,3 +4,4 @@ return {
     lazy = false,
     config = true,  -- popup that shows what my leader keys do
   },
+}

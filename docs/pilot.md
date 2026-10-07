@@ -26,7 +26,7 @@ explicitly rather than introducing one silently here.
 | `~/.config/dotfiles-pilot/zsh/.zshrc` | One authored immutable file; used only with explicit `ZDOTDIR` |
 | `~/.config/dotfiles-pilot/git/config` | One authored immutable file; selected only with per-process `GIT_CONFIG_GLOBAL` |
 | `~/.config/nix/nix.conf` | One authored user-level Nix client config with `nix-command` and `flakes`; effective only after approved activation |
-| HM profile/generation, session-vars, cache/state markers and font marker | Upstream HM machinery, not just the three authored files; inspect the entire built closure before approval |
+| HM profile/generation, session-vars, cache/state markers and font marker | Upstream HM machinery beyond the authored config mappings; inspect the entire built closure before approval |
 | `~/.zshrc`, `.zprofile`, `.zshenv`, `.gitconfig`, `.config/git/config` | Unmanaged and untouched; no source/include of their contents |
 | Homebrew and GUI/mac-specific apps | Existing owner retained; no cask/formula shortlist or adoption in this pilot |
 | Volta/Node 22.22.2, Pi runtime, Herdr lifecycle/server/session state, Firstmate, credentials and services | Entirely out of scope; no runtime packages, state links, imports or lifecycle commands |
@@ -40,13 +40,10 @@ credential helper or include. Explicitly selecting it replaces the process's
 global Git configuration: use local test repositories, not authenticated network
 operations or real work requiring private global identity/helper settings.
 
-Neovim is provided as `pkgs.neovim` in the Home Manager user profile and its
-configuration, locked lazy.nvim plugin set, Herdr keybindings, and WezTerm settings
-are mapped from this repository's authored files. Hack Nerd Font is included for
-the terminal font setting. No Herdr or WezTerm application package is claimed by
-this pilot: the host already resolves both commands, and Herdr is not available as
-a package in the locked Nixpkgs. No shell alias, default-editor override, or host
-activation is authorized. The pilot declares `nix-command` and `flakes` in the user's
+See [editor/terminal setup](editor-terminal-setup.md) for app configuration,
+plugin lock state, font requirements, existing app ownership and installation
+handoff. No shell alias, default-editor override, or host activation is authorized.
+The pilot declares `nix-command` and `flakes` in the user's
 `~/.config/nix/nix.conf` through the existing Home Manager XDG file surface. This
 avoids selecting a Nix package or changing daemon ownership or nix-darwin settings.
 The file takes effect only after Home Manager activation; it cannot bootstrap the
@@ -284,4 +281,4 @@ reviewed recovery documentation, never generic deletion of `/nix`.
 - [nix-darwin README](https://github.com/nix-darwin/nix-darwin/blob/master/README.md): Apple Silicon output and Nix implementation ownership.
 - [nix-darwin Homebrew module](https://github.com/nix-darwin/nix-darwin/blob/nix-darwin-26.05/modules/homebrew.nix): activation boundary and explicit no-cleanup/no-update policy.
 - [Nix flake lock manual](https://nix.dev/manual/nix/2.35/command-ref/new-cli/nix3-flake-lock): lock generation, hashes and no-update behavior.
-- [kunchenguid/dotfiles at 9a4a638](https://github.com/kunchenguid/dotfiles/tree/9a4a6387d0dd6f4bf9b8a5a732b406916bbbf95d): small flake/module split and follows pattern only. No cleanup/zap, force, installer, app defaults, live agent resources or bootstrap behavior copied.
+- [kunchenguid/dotfiles at 9a4a638](https://github.com/kunchenguid/dotfiles/tree/9a4a6387d0dd6f4bf9b8a5a732b406916bbbf95d): small flake/module split and follows pattern; app configuration adoption is documented in [editor/terminal setup](editor-terminal-setup.md#provenance-and-scope).
