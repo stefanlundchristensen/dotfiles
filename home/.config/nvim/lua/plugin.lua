@@ -4,4 +4,10 @@ if not vim.uv.fs_stat(lazypath) then
     'https://github.com/folke/lazy.nvim.git', '--branch=stable', lazypath })
 end
 vim.opt.rtp:prepend(lazypath)
-require('lazy').setup('plugins')  -- load every file in lua/plugins/
+local lockfile = vim.fn.stdpath('state') .. '/lazy/lazy-lock.json'
+if not vim.uv.fs_stat(lockfile) then
+  vim.fn.mkdir(vim.fn.fnamemodify(lockfile, ':h'), 'p')
+  assert(vim.uv.fs_copyfile(vim.fn.stdpath('config') .. '/lazy-lock.json', lockfile, { excl = true }))
+  assert(vim.uv.fs_chmod(lockfile, tonumber('600', 8)))
+end
+require('lazy').setup('plugins', { lockfile = lockfile })
