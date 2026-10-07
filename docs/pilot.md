@@ -21,10 +21,11 @@ explicitly rather than introducing one silently here.
 
 | Surface | Pilot owner / scope |
 | --- | --- |
-| Git, Zsh, jq, ripgrep | Four Nix packages in the standalone HM user profile, only after approved activation |
+| Git, Zsh, jq, ripgrep, Neovim | Five Nix packages in the standalone HM user profile, only after approved activation; Neovim remains unconfigured |
 | `~/.config/dotfiles-pilot/zsh/.zshrc` | One authored immutable file; used only with explicit `ZDOTDIR` |
 | `~/.config/dotfiles-pilot/git/config` | One authored immutable file; selected only with per-process `GIT_CONFIG_GLOBAL` |
-| HM profile/generation, session-vars, cache/state markers and font marker | Upstream HM machinery, not just the two authored files; inspect the entire built closure before approval |
+| `~/.config/nix/nix.conf` | One authored user-level Nix client config with `nix-command` and `flakes`; effective only after approved activation |
+| HM profile/generation, session-vars, cache/state markers and font marker | Upstream HM machinery, not just the three authored files; inspect the entire built closure before approval |
 | `~/.zshrc`, `.zprofile`, `.zshenv`, `.gitconfig`, `.config/git/config` | Unmanaged and untouched; no source/include of their contents |
 | Homebrew and GUI/mac-specific apps | Existing owner retained; no cask/formula shortlist or adoption in this pilot |
 | Volta/Node 22.22.2, Pi, Herdr/Firstmate, credentials and services | Entirely out of scope; no packages, links, imports or lifecycle commands |
@@ -37,6 +38,27 @@ files, install plugins or change login shell. Git behavior has no identity,
 credential helper or include. Explicitly selecting it replaces the process's
 global Git configuration: use local test repositories, not authenticated network
 operations or real work requiring private global identity/helper settings.
+
+Neovim is added only as `pkgs.neovim` in the Home Manager user profile. No Neovim
+configuration, plugin framework, aliases, editor choice, or default-editor override
+is declared. The pilot declares `nix-command` and `flakes` in the user's
+`~/.config/nix/nix.conf` through the existing Home Manager XDG file surface. This
+avoids selecting a Nix package or changing daemon ownership or nix-darwin settings.
+The file takes effect only after Home Manager activation; it cannot bootstrap the
+flake evaluation or activation that creates it. Before first use, pass the features
+explicitly to Nix, before the subcommand, for example:
+
+```sh
+nix --extra-experimental-features 'nix-command flakes' flake metadata --no-update-lock-file
+```
+
+Use the same global option for each initial Nix flake/build command. When calling
+a standalone `home-manager` executable directly, provide the equivalent setting
+for that process and its Nix children, for example
+`NIX_CONFIG='experimental-features = nix-command flakes' home-manager ...`.
+These are bootstrap instructions only; no activation is authorized here. Do not
+assume the HM-declared setting is effective until an independently approved
+activation has completed.
 
 `darwinConfigurations.staged` is a separate **build/review-only future seam**.
 Homebrew is disabled; its lists are empty, cleanup is `none`, auto-update and
@@ -147,7 +169,8 @@ passed. CI remains a separate publishing gate, not evidence of activation.
 
 The returned HM output's `activate`, `home-files`, `home-path` and
 `home-path/etc/profile.d/hm-session-vars.sh` were inspected, never executed or
-sourced. The two authored config files matched with `cmp`. `home-files` also
+sourced. In this 2026-10-05 snapshot, the two authored config files matched with
+`cmp`. `home-files` also
 contains upstream `.cache/.keep`, `.local/state/.keep` and
 `Library/Fonts/.home-manager-fonts-version`; activation includes app/font directory
 setup and LaunchAgents setup (the built LaunchAgents directory is empty). Session
@@ -169,6 +192,39 @@ apply either configuration; `--no-link` also avoids a result link. Keep secrets,
 private config and the vault outside this checkout and the Nix store. Before later
 adoption, review generated artifacts again from the then-approved source/lock;
 store paths here are evidence, not durable backups or approval to activate.
+
+### Neovim follow-up build (2026-10-06)
+
+The follow-up used the same already-installed Nix 2.35.2 binary. The flake check
+asserts that Neovim is in the Home Manager package set and runs the Python tests.
+The generated XDG Nix client config was inspected as recorded below; the check
+does not semantically assert its effective experimental-feature set. Commands:
+
+```sh
+NIX=/nix/var/nix/profiles/default/bin/nix
+"$NIX" --extra-experimental-features 'nix-command flakes' eval --no-update-lock-file --raw \
+  .#checks.aarch64-darwin.pilot-config.drvPath
+"$NIX" --extra-experimental-features 'nix-command flakes' eval --no-update-lock-file --raw \
+  .#homeConfigurations.pilot.activationPackage.drvPath
+"$NIX" --extra-experimental-features 'nix-command flakes' flake check --no-build --no-update-lock-file
+"$NIX" --extra-experimental-features 'nix-command flakes' build --no-update-lock-file --no-link --print-out-paths \
+  .#homeConfigurations.pilot.activationPackage
+"$NIX" --extra-experimental-features 'nix-command flakes' build --no-update-lock-file --no-link --print-out-paths \
+  .#checks.aarch64-darwin.pilot-config
+python3 -m unittest discover -s tests -v
+actionlint .github/workflows/checks.yml
+git diff --check
+```
+
+All commands exited **0**; all five Python tests passed. The activation package
+built as `/nix/store/4g3hjbl45h6c7s2rmxfp7cmkhgpajal2-home-manager-generation`;
+its generated `home-files/.config/nix/nix.conf` contained exactly
+`experimental-features = nix-command flakes`, and its profile contained executable
+Neovim 0.12.4. The flake check derivation also built successfully. These were
+non-activating evaluation/build and read-only output checks: the generated
+`activate` script was not run, no user profile was switched, and no nix-darwin
+output or daemon configuration was changed. Dependency paths were fetched into the
+Nix store; this was not a cold rebuild.
 
 ## Future activation gate — separate explicit approval required
 

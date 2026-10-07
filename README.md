@@ -4,9 +4,10 @@ Reproducible macOS setup with a staged Nix and Homebrew configuration
 ## Configuration-only pilot
 
 A small Apple Silicon (`aarch64-darwin`) preparation: standalone Home Manager
-provides Zsh, Git, jq and ripgrep plus two explicitly selected, isolated config
-files. `darwinConfigurations.staged` records the later nix-darwin/Homebrew seam;
-Homebrew is disabled and existing GUI/mac-specific software stays with its owner.
+provides Zsh, Git, jq, ripgrep and Neovim plus isolated Zsh/Git configuration
+and user-level Nix feature flags. `darwinConfigurations.staged` records the later
+nix-darwin/Homebrew seam; Homebrew is disabled and existing GUI/mac-specific
+software stays with its owner.
 
 **Nothing here installs or activates Nix or dotfiles.** No live shell/Git takeover,
 Node/Volta/Pi changes, Herdr/Firstmate lifecycle, secrets, services or cleanup.

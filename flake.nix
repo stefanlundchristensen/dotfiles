@@ -27,14 +27,16 @@
         modules = [ ./darwin/staged.nix ];
       };
 
-      checks.${system}.pilot-config = pkgs.runCommand "pilot-config-checks" {
-        nativeBuildInputs = [ pkgs.python3 pkgs.git pkgs.zsh ];
-      } ''
-        cp -R ${self} ./source
-        chmod -R u+w ./source
-        cd source
-        python3 -m unittest discover -s tests -v
-        touch "$out"
-      '';
+      checks.${system}.pilot-config =
+        assert builtins.elem pkgs.neovim self.homeConfigurations.pilot.config.home.packages;
+        pkgs.runCommand "pilot-config-checks" {
+          nativeBuildInputs = [ pkgs.python3 pkgs.git pkgs.zsh ];
+        } ''
+          cp -R ${self} ./source
+          chmod -R u+w ./source
+          cd source
+          python3 -m unittest discover -s tests -v
+          touch "$out"
+        '';
     };
 }
